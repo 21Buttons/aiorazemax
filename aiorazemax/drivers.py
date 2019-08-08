@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import Union
+from typing import Optional
 
 import aiobotocore
 
@@ -24,7 +24,7 @@ class SQSDriver:
     async def close(self):
         await self._client.close()
 
-    async def receive_message(self) -> Union[Message, None]:
+    async def receive_message(self) -> Optional[Message]:
         messages = await self._client.receive_message(
             QueueUrl=self._queue_url,
             MaxNumberOfMessages=1,
