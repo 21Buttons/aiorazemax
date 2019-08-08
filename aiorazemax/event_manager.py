@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import types
 from collections import defaultdict
 from typing import Dict
 
@@ -14,9 +16,14 @@ class EventManager:
         cls.__subscribers[event].add(subscriber)
 
     @classmethod
-    def trigger(cls, event):
+    async def trigger(cls, event):
+        async_tasks = []
         for subscriber in cls.__subscribers.get(event.__class__, []):
-            subscriber(event)
+            subscriber_result = subscriber(event)
+            if isinstance(subscriber_result, types.CoroutineType):
+                task = asyncio.create_task(subscriber_result)
+                async_tasks.append(task)
+        await asyncio.gather(*async_tasks)
 
     @classmethod
     def _reset(cls):

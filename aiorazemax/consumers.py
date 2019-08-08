@@ -29,7 +29,7 @@ class MessageConsumer:
             logging.debug(f"Event type is: {event.__class__}")
 
             # Trigger subscribers
-            self._event_manager.trigger(event)
+            await self._event_manager.trigger(event)
         except Exception as e:  # TODO: specify exceptions...
             logging.error(str(e))
             self._queue_driver.mark_message_unprocessed(message, e)

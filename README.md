@@ -23,8 +23,14 @@ def trump_subscriber(event: NorthKoreaThreatCreatedEvent):
     print(f"North korea will attack us or {event.target}!")
 
 
+async def trump_async_subscriber(event: NorthKoreaThreatCreatedEvent):
+    await asyncio.sleep(0.1)
+    print(f"North korea will attack us or {event.target}!")
+
+
 EventManager.subscribe(trump_subscriber, NorthKoreaThreatCreatedEvent)
-EventManager.trigger(NorthKoreaThreatCreatedEvent(0, "Mexico"))
+EventManager.subscribe(trump_async_subscriber, NorthKoreaThreatCreatedEvent)
+await EventManager.trigger(NorthKoreaThreatCreatedEvent(0, "Mexico"))
 ```
 
 Result:
