@@ -55,7 +55,7 @@ class SQSDriver:
     @classmethod
     def _process_message(cls, message_sqs) -> Message:
         """
-        Process botocore SQS response messages
+        Process botocore SQS receive message response. The message_sqs is one nested message inside Messages key.
         https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Client.receive_message
         """
         try:
@@ -76,7 +76,7 @@ class SQSDriver:
                        body=message_content)
 
     @classmethod
-    async def build(cls, queue_name: str, aws_settings: Dict = {}) -> SQSDriver:
+    async def build(cls, queue_name: str, aws_settings: Dict = {}) -> 'SQSDriver':
         """ aws_settings is a dict with:
             - region_name
             - aws_access_key_id

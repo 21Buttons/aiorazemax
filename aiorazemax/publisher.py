@@ -41,7 +41,7 @@ class SNSMessagePublisher:
                                         })
 
     @classmethod
-    async def build(cls, topic_arn: str, aws_settings: Dict = {}) -> SNSMessagePublisher:
+    async def build(cls, topic_arn: str, aws_settings: Dict = {}) -> 'SNSMessagePublisher':
         """ aws_settings is a dict with:
             - region_name
             - aws_access_key_id
