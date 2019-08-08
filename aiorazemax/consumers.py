@@ -1,17 +1,17 @@
 import logging
-from typing import Union
+from typing import Union, Dict
 
 from aiorazemax.drivers import SQSDriver
 from aiorazemax.event_manager import EventManager
 
 
 class MessageConsumer:
-    def __init__(self, mapper_factory: dict, event_manager: Union[EventManager, type(EventManager)], queue_driver: SQSDriver) -> bool:
+    def __init__(self, mapper_factory: Dict, event_manager: Union[EventManager, type(EventManager)], queue_driver: SQSDriver):
         self._mapper_factory = mapper_factory
         self._queue_driver = queue_driver
         self._event_manager = event_manager
 
-    async def process_message(self):
+    async def process_message(self) -> bool:
         # Receive message
         message = await self._queue_driver.receive_message()
 

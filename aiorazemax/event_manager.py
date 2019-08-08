@@ -1,11 +1,13 @@
 import logging
 from collections import defaultdict
+from typing import Dict
+
 
 logger = logging.getLogger(__name__)
 
 
 class EventManager:
-    __subscribers: dict = defaultdict(set)
+    __subscribers: Dict = defaultdict(set)
 
     @classmethod
     def subscribe(cls, subscriber, event):
@@ -22,5 +24,5 @@ class EventManager:
         cls.__subscribers = defaultdict(set)
 
     @classmethod
-    def subscribers(cls):
+    def subscribers(cls) -> Dict:
         return dict(cls.__subscribers)

@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import Optional
+from typing import Optional, Dict
 
 import aiobotocore
 
@@ -41,7 +41,7 @@ class SQSDriver:
 
         return message
 
-    async def mark_message_processed(self, message: Message) -> None:
+    async def mark_message_processed(self, message: Message):
         await self._client.delete_message(
             QueueUrl=self._queue_url,
             ReceiptHandle=message.receipt_handle
@@ -54,6 +54,10 @@ class SQSDriver:
 
     @classmethod
     def _process_message(cls, message_sqs) -> Message:
+        """
+        Process botocore SQS response messages
+        https://botocore.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Client.receive_message
+        """
         try:
             message_dict = json.loads(message_sqs["Body"])
             logging.debug(f"Message body: {message_sqs['Body']}")
@@ -72,7 +76,13 @@ class SQSDriver:
                        body=message_content)
 
     @classmethod
-    async def build(cls, queue_name: str, aws_settings: dict):
+    async def build(cls, queue_name: str, aws_settings: Dict = {}) -> SQSDriver:
+        """ aws_settings is a dict with:
+            - region_name
+            - aws_access_key_id
+            - aws_secret_access_key
+            - endpoint_url (optional)
+        """
         loop = asyncio.get_running_loop()
         session = aiobotocore.get_session(loop=loop)
         sqs_client = session.create_client('sqs', **aws_settings)

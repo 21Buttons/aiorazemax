@@ -2,11 +2,12 @@ import asyncio
 import json
 import logging
 from datetime import datetime
+from typing import Dict
 
 import aiobotocore
 
 
-class SNSMessagePublisher(object):
+class SNSMessagePublisher:
     def __init__(self, sns_client, topic_arn):
         self._client = sns_client
         self._topic_arn = topic_arn
@@ -14,7 +15,7 @@ class SNSMessagePublisher(object):
     async def close(self):
         await self._client.close()
 
-    async def publish(self, event_name: str, event_body: dict, extra_meta: dict = {}):
+    async def publish(self, event_name: str, event_body: Dict, extra_meta: Dict = {}) -> Dict:
         meta = {
             "timestamp": datetime.utcnow().isoformat('T'),
             "version": 1
@@ -40,7 +41,7 @@ class SNSMessagePublisher(object):
                                         })
 
     @classmethod
-    async def build(cls, topic_arn: str, aws_settings: dict = {}):
+    async def build(cls, topic_arn: str, aws_settings: Dict = {}) -> SNSMessagePublisher:
         """ aws_settings is a dict with:
             - region_name
             - aws_access_key_id
