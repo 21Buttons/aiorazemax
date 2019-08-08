@@ -1,4 +1,4 @@
-aiobotocore
-pytest==3.10.0
-pytest-asyncio
-asynctest
+aiobotocore==0.10.3
+asynctest==0.13.0
+pytest==5.0.1
+pytest-asyncio==0.10.0
