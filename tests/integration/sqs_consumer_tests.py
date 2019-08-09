@@ -1,12 +1,12 @@
+import asyncio
 import os
-import time
 
 import pytest
 
-from razemax.consumers import MessageConsumer
-from razemax.drivers import SQSDriver, Message
-from razemax.event_manager import EventManager
-from razemax.publisher import SNSMessagePublisher
+from aiorazemax.consumers import MessageConsumer
+from aiorazemax.drivers import SQSDriver, Message
+from aiorazemax.event_manager import EventManager
+from aiorazemax.publisher import SNSMessagePublisher
 
 
 # events.py
@@ -40,7 +40,8 @@ def follow_created_mapper(message: Message):
 
 
 @pytest.mark.integration
-def test_integration_sqs():
+@pytest.mark.asyncio
+async def test_integration_sqs():
     message_factory = {
         'follow_created': follow_created_mapper
     }
@@ -55,18 +56,22 @@ def test_integration_sqs():
     queue_name = os.environ['SQS_QUEUE_NAME']
     topic_arn = os.environ['SNS_TOPIC_ARN']
 
-    driver = SQSDriver.build(queue_name=queue_name, aws_settings=aws_settings)
-    publisher = SNSMessagePublisher.build(topic_arn=topic_arn, aws_settings=aws_settings)
+    driver = await SQSDriver.build(queue_name=queue_name, aws_settings=aws_settings)
+    publisher = await SNSMessagePublisher.build(topic_arn=topic_arn, aws_settings=aws_settings)
+    consumer = MessageConsumer(mapper_factory=message_factory, event_manager=EventManager(), queue_driver=driver)
 
-    publisher.publish("follow_created", {
+    assert await consumer.process_message() is False
+
+    await publisher.publish("follow_created", {
         'source_user': 'amancioortega',
         'target_user': 'jairo',
         'is_suggested': False,
         'timestamp': "2018-12-01T11:23:23.0000"
     })
 
-    time.sleep(1)   # Wait for deliver
+    await asyncio.sleep(1)   # Wait for deliver
+    assert await consumer.process_message() is True
+    assert await consumer.process_message() is False
 
-    consumer = MessageConsumer(mapper_factory=message_factory, event_manager=EventManager(), queue_driver=driver)
-
-    consumer.process_message()
+    await driver.close()
+    await publisher.close()

@@ -1,24 +1,23 @@
 import logging
-from typing import Union
+from typing import Union, Dict
 
-from razemax.drivers import SQSDriver
-from razemax.event_manager import EventManager
+from aiorazemax.drivers import SQSDriver
+from aiorazemax.event_manager import EventManager
 
 
 class MessageConsumer:
-    def __init__(self, mapper_factory: dict, event_manager: Union[EventManager, type(EventManager)],
-                 queue_driver: SQSDriver):
+    def __init__(self, mapper_factory: Dict, event_manager: Union[EventManager, type(EventManager)], queue_driver: SQSDriver):
         self._mapper_factory = mapper_factory
         self._queue_driver = queue_driver
         self._event_manager = event_manager
 
-    def process_message(self):
+    async def process_message(self) -> bool:
         # Receive message
-        message = self._queue_driver.receive_message()
+        message = await self._queue_driver.receive_message()
 
         if not message:
             logging.debug("No messages to process")
-            return None
+            return False
 
         logging.debug(f"Message type is: {message.event_name}")
         try:
@@ -30,9 +29,10 @@ class MessageConsumer:
             logging.debug(f"Event type is: {event.__class__}")
 
             # Trigger subscribers
-            self._event_manager.trigger(event)
+            await self._event_manager.trigger(event)
         except Exception as e:  # TODO: specify exceptions...
             logging.error(str(e))
             self._queue_driver.mark_message_unprocessed(message, e)
         else:
-            self._queue_driver.mark_message_processed(message)
+            await self._queue_driver.mark_message_processed(message)
+        return True
