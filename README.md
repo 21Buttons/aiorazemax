@@ -19,17 +19,12 @@ class NorthKoreaThreatCreatedEvent:
         self.target = target
 
 
-def trump_subscriber(event: NorthKoreaThreatCreatedEvent):
-    print(f"North korea will attack us or {event.target}!")
-
-
-async def trump_async_subscriber(event: NorthKoreaThreatCreatedEvent):
+async def trump_subscriber(event: NorthKoreaThreatCreatedEvent):
     await asyncio.sleep(0.1)
     print(f"North korea will attack us or {event.target}!")
 
 
 EventManager.subscribe(trump_subscriber, NorthKoreaThreatCreatedEvent)
-EventManager.subscribe(trump_async_subscriber, NorthKoreaThreatCreatedEvent)
 await EventManager.trigger(NorthKoreaThreatCreatedEvent(0, "Mexico"))
 ```
 

@@ -19,10 +19,8 @@ class EventManager:
     async def trigger(cls, event):
         async_tasks = []
         for subscriber in cls.__subscribers.get(event.__class__, []):
-            subscriber_result = subscriber(event)
-            if isinstance(subscriber_result, types.CoroutineType):
-                task = asyncio.create_task(subscriber_result)
-                async_tasks.append(task)
+            task = asyncio.create_task(subscriber(event))
+            async_tasks.append(task)
         await asyncio.gather(*async_tasks)
 
     @classmethod
